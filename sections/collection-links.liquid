@@ -15,7 +15,7 @@
 
   assign active_collection = collection_list | find: 'id', collection.id | default: collection_list.first
 %}
-
+collection-links
 <script
   src="{{ 'collection-links.js' | asset_url }}"
   type="module"
