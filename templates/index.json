@@ -130,7 +130,11 @@
       },
       "name": "t:names.collection_links_spotlight",
       "settings": {
-        "collection_list": [],
+        "collection_list": [
+          "collection-to-test",
+          "frontpage",
+          "test-collection"
+        ],
         "layout": "spotlight",
         "section_width": "page-width",
         "alignment": "left",
