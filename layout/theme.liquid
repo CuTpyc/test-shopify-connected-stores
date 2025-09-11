@@ -22,7 +22,11 @@
       id="view-transition-render-blocker"
     >
        Test text
-
+    {%- render 'meta-tags' -%}
+    {%- render 'fonts' -%}
+    {%- render 'scripts' -%}
+    {%- render 'theme-styles-variables' -%}
+    {%- render 'color-schemes' -%}
 
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
