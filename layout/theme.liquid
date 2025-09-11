@@ -21,17 +21,12 @@
       blocking="render"
       id="view-transition-render-blocker"
     >
-      
-    {%- render 'meta-tags' -%}
+       Test text
+    {% comment %} {%- render 'meta-tags' -%}
     {%- render 'fonts' -%}
     {%- render 'scripts' -%}
     {%- render 'theme-styles-variables' -%}
-    {%- render 'color-schemes' -%}
-    {%- render 'meta-tags' -%}
-    {%- render 'fonts' -%}
-    {%- render 'scripts' -%}
-    {%- render 'theme-styles-variables' -%}
-    {%- render 'color-schemes' -%}
+    {%- render 'color-schemes' -%} {% endcomment %}
 
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
