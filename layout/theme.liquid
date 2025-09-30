@@ -33,6 +33,85 @@
     {% endif %}
 
     {{ content_for_header }}
+    <script>
+      (function () {
+        const IANA_TIME_ZONE = "America/New_York";
+        const CUTOFF_HOUR_24 = 13;                
+        const APP_PROXY_PATH = "/apps/ab/is-today-blocked";
+
+        const PAGE_ALLOWLIST = [
+          "/pages/partout-au-canada",
+          "/pages/livraison-qc"
+        ];
+
+        // Селектор секции countdown — подстрой под вашу разметку, если нужно.
+        // Добавил несколько частых вариантов; первый найденный элемент будет скрыт.
+        const COUNTDOWN_SELECTORS = [
+          '[data-section-type*="countdown"]',
+          '[data-countdown]',
+          '.countdown',
+          '.counterdown',
+          'section:has(.countdown), section:has([data-countdown])'
+        ];
+
+        // --- ранний выход, если мы не на целевой странице ---
+        const path = location.pathname.replace(/\/+$/,''); // без завершающего слеша
+        if (!PAGE_ALLOWLIST.includes(path)) return;
+
+        // --- утилиты ---
+        function hideCountdown() {
+          for (const sel of COUNTDOWN_SELECTORS) {
+            const el = document.querySelector(sel);
+            if (el) {
+              el.style.display = 'none';
+              document.documentElement.classList.add('fq-countdown-disabled');
+              return true;
+            }
+          }
+          return false; // не нашли — ок, просто выходим
+        }
+
+        function onReady(fn) {
+          if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", fn, { once:true });
+          } else {
+            fn();
+          }
+        }
+
+        // --- основная логика ---
+        async function evaluateAndToggle() {
+          try {
+            const url = `${APP_PROXY_PATH}?tz=${encodeURIComponent(IANA_TIME_ZONE)}&cutoff=${encodeURIComponent(CUTOFF_HOUR_24)}`;
+            const res = await fetch(url, { credentials: "same-origin", cache: "no-store" });
+            if (!res.ok) throw new Error(`API ${res.status}`);
+            const data = await res.json();
+
+            // API возвращает:
+            // isDateBlocked: boolean, isAfterCutOff: boolean, shouldShowBanner: boolean (если делали по моему коду)
+            const shouldDisable = Boolean(data.isDateBlocked) || Boolean(data.isAfterCutOff);
+
+            if (shouldDisable) {
+              onReady(hideCountdown);
+            }
+            // В дев-консоли удобно видеть диагностику
+            console.debug("[fq:countdown]", {
+              page: path,
+              timeZone: data.timeZone || IANA_TIME_ZONE,
+              dateLocal: data.clientLocalDateISO,
+              isDateBlocked: data.isDateBlocked,
+              isAfterCutOff: data.isAfterCutOff,
+              action: shouldDisable ? "HIDE" : "KEEP"
+            });
+          } catch (e) {
+            // В случае проблем с API — не ломаем страницу, просто оставляем как есть
+            console.warn("[fq:countdown] check failed:", e);
+          }
+        }
+
+        evaluateAndToggle();
+      })();
+    </script>
   </head>
 
   <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
