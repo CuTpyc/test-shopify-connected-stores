@@ -38,10 +38,6 @@
         const IANA_TIME_ZONE = "America/New_York";
         const CUTOFF_HOUR_24 = 13;                
         const APP_PROXY_PATH = "/apps/api/is-today-blocked";
-        const PAGE_ALLOWLIST = [
-          "/pages/partout-au-canada",
-          "/pages/livraison-qc"
-        ];
 
         // Селектор секции countdown — подстрой под вашу разметку, если нужно.
         // Добавил несколько частых вариантов; первый найденный элемент будет скрыт.
@@ -54,8 +50,6 @@
         ];
 
         // --- ранний выход, если мы не на целевой странице ---
-        const path = location.pathname.replace(/\/+$/,''); // без завершающего слеша
-        if (!PAGE_ALLOWLIST.includes(path)) return;
 
         // --- утилиты ---
         function hideCountdown() {
@@ -95,7 +89,6 @@
             }
             // В дев-консоли удобно видеть диагностику
             console.debug("[fq:countdown]", {
-              page: path,
               timeZone: data.timeZone || IANA_TIME_ZONE,
               dateLocal: data.clientLocalDateISO,
               isDateBlocked: data.isDateBlocked,
