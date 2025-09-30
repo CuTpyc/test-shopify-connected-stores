@@ -39,8 +39,6 @@
         const CUTOFF_HOUR_24 = 13;                
         const APP_PROXY_PATH = "/apps/api/is-today-blocked";
 
-        // Селектор секции countdown — подстрой под вашу разметку, если нужно.
-        // Добавил несколько частых вариантов; первый найденный элемент будет скрыт.
         const COUNTDOWN_SELECTORS = [
           '[data-section-type*="countdown"]',
           '[data-countdown]',
@@ -49,9 +47,7 @@
           'section:has(.countdown), section:has([data-countdown])'
         ];
 
-        // --- ранний выход, если мы не на целевой странице ---
 
-        // --- утилиты ---
         function hideCountdown() {
           for (const sel of COUNTDOWN_SELECTORS) {
             const el = document.querySelector(sel);
@@ -61,7 +57,7 @@
               return true;
             }
           }
-          return false; // не нашли — ок, просто выходим
+          return false; 
         }
 
         function onReady(fn) {
@@ -72,7 +68,6 @@
           }
         }
 
-        // --- основная логика ---
         async function evaluateAndToggle() {
           try {
             const url = `${APP_PROXY_PATH}?tz=${encodeURIComponent(IANA_TIME_ZONE)}&cutoff=${encodeURIComponent(CUTOFF_HOUR_24)}`;
@@ -80,14 +75,11 @@
             if (!res.ok) throw new Error(`API ${res.status}`);
             const data = await res.json();
 
-            // API возвращает:
-            // isDateBlocked: boolean, isAfterCutOff: boolean, shouldShowBanner: boolean (если делали по моему коду)
             const shouldDisable = Boolean(data.isDateBlocked) || Boolean(data.isAfterCutOff);
 
             if (shouldDisable) {
               onReady(hideCountdown);
             }
-            // В дев-консоли удобно видеть диагностику
             console.debug("[fq:countdown]", {
               timeZone: data.timeZone || IANA_TIME_ZONE,
               dateLocal: data.clientLocalDateISO,
@@ -96,7 +88,6 @@
               action: shouldDisable ? "HIDE" : "KEEP"
             });
           } catch (e) {
-            // В случае проблем с API — не ломаем страницу, просто оставляем как есть
             console.warn("[fq:countdown] check failed:", e);
           }
         }
